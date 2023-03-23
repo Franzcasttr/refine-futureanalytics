@@ -1,6 +1,6 @@
-import { AuthBindings } from "@refinedev/core";
+import { AuthBindings } from '@refinedev/core';
 
-import { supabaseClient } from "utility";
+import { supabaseClient } from 'utility';
 
 const authProvider: AuthBindings = {
   login: async ({ email, password, providerName }) => {
@@ -21,7 +21,7 @@ const authProvider: AuthBindings = {
         if (data?.url) {
           return {
             success: true,
-            redirectTo: "/",
+            redirectTo: '/',
           };
         }
       }
@@ -42,7 +42,7 @@ const authProvider: AuthBindings = {
       if (data?.user) {
         return {
           success: true,
-          redirectTo: "/",
+          redirectTo: '/',
         };
       }
     } catch (error: any) {
@@ -54,7 +54,7 @@ const authProvider: AuthBindings = {
 
     return {
       success: false,
-      error: new Error("Login failed"),
+      error: new Error('Login failed'),
     };
   },
   register: async ({ email, password }) => {
@@ -74,7 +74,7 @@ const authProvider: AuthBindings = {
       if (data) {
         return {
           success: true,
-          redirectTo: "/",
+          redirectTo: '/',
         };
       }
     } catch (error: any) {
@@ -86,7 +86,7 @@ const authProvider: AuthBindings = {
 
     return {
       success: false,
-      error: new Error("Register failed"),
+      error: new Error('Register failed'),
     };
   },
   forgotPassword: async ({ email }) => {
@@ -119,7 +119,7 @@ const authProvider: AuthBindings = {
 
     return {
       success: false,
-      error: new Error("Forgot Password password failed"),
+      error: new Error('Forgot Password password failed'),
     };
   },
   updatePassword: async ({ password }) => {
@@ -138,7 +138,7 @@ const authProvider: AuthBindings = {
       if (data) {
         return {
           success: true,
-          redirectTo: "/",
+          redirectTo: '/',
         };
       }
     } catch (error: any) {
@@ -149,7 +149,7 @@ const authProvider: AuthBindings = {
     }
     return {
       success: false,
-      error: new Error("Update Password password failed"),
+      error: new Error('Update Password password failed'),
     };
   },
   logout: async () => {
@@ -164,7 +164,7 @@ const authProvider: AuthBindings = {
 
     return {
       success: true,
-      redirectTo: "/",
+      redirectTo: '/',
     };
   },
   onError: async (error) => {
@@ -179,17 +179,17 @@ const authProvider: AuthBindings = {
       if (!session) {
         return {
           authenticated: false,
-          error: new Error("Not authenticated"),
+          error: new Error('Not authenticated'),
           logout: true,
-          redirectTo: "/login",
+          redirectTo: '/login',
         };
       }
     } catch (error: any) {
       return {
         authenticated: false,
-        error: error || new Error("Not authenticated"),
+        error: error || new Error('Not authenticated'),
         logout: true,
-        redirectTo: "/login",
+        redirectTo: '/login',
       };
     }
 
@@ -200,11 +200,15 @@ const authProvider: AuthBindings = {
   getPermissions: async () => {
     const user = await supabaseClient.auth.getUser();
 
-    if (user) {
-      return user.data.user?.role;
+    if (!user) {
+      return Promise.reject();
     }
 
-    return null;
+    const { data } = await supabaseClient.rpc('get_my_claim', {
+      claim: 'role',
+    });
+
+    return Promise.resolve(data);
   },
   getIdentity: async () => {
     const { data } = await supabaseClient.auth.getUser();
